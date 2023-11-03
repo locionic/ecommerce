@@ -181,7 +181,7 @@ class Dev(Configuration):
     # ]
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
-    CSRF_TRUSTED_ORIGINS = [r"^https://\w+\-\w+\.onrender\.com$", ]
+    CSRF_TRUSTED_ORIGINS = ['https://ecommerce-x3n5.onrender.com', ]
 
 
     PAGINATION_PAGE_SIZE = 20
