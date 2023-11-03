@@ -173,12 +173,16 @@ class Dev(Configuration):
     # Email settings
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     ADMINS = [("Abdoo", "abdoohossamm@outlook.com")]
-    CORS_ALLOWED_ORIGINS = [
-        'http://localhost:8080',
-        'http://localhost:80',
-        'http://localhost',
-        r"^https://\w+\.onrender\.com$",
-    ]
+    # CORS_ALLOWED_ORIGINS = [
+    #     'http://localhost:8080',
+    #     'http://localhost:80',
+    #     'http://localhost',
+    #     r"^https://\w+\.onrender\.com$",
+    # ]
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+
+    
     PAGINATION_PAGE_SIZE = 20
     REST_FRAMEWORK = {
         "DEFAULT_AUTHENTICATION_CLASSES": [
