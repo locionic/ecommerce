@@ -177,7 +177,7 @@ class Dev(Configuration):
         'http://localhost:8080',
         'http://localhost:80',
         'http://localhost',
-        r"^https://\w+\.onrender\.com$"
+        r"^https://\w+\.onrender\.com$",
     ]
     PAGINATION_PAGE_SIZE = 20
     REST_FRAMEWORK = {
