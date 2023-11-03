@@ -176,7 +176,8 @@ class Dev(Configuration):
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:8080',
         'http://localhost:80',
-        'http://localhost'
+        'http://localhost',
+        r"^https://\w+\.onrender\.com$"
     ]
     PAGINATION_PAGE_SIZE = 20
     REST_FRAMEWORK = {
