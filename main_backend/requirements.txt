@@ -18,4 +18,4 @@ drf-yasg==1.21.4
 Pillow==9.3.0
 django-extra-fields==3.0.2
 python-dotenv==0.21.0
-python-magic-bin==0.4.14
+# python-magic-bin==0.4.14
