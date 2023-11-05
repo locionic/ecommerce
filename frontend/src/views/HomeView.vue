@@ -6,7 +6,7 @@
           Welcome to eCommerce!
         </p>
         <p class="subtitle">
-          The best online store.
+          The online shopping store.
         </p>
       </div>
     </section>
