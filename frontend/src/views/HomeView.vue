@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <section class="hero is-medium is-dark mb-6">
+    <section class="hero is-medium mb-6" style="background-image: url(https://websitedemos.net/be-bold-beauty-store-04/wp-content/uploads/sites/1117/2022/08/hero.jpg); border-radius: 1rem;">
       <div class="hero-body has-text-centered">
         <p class="title mb-6">
           Welcome to eCommerce!
