@@ -46,6 +46,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     permission_classes = [IsReviewReadOnly | SellerModifyOrReadOnly | IsAdminUserForObject | IsSellerUser]
 
+    def list(self, request):
+        queryset = Product.objects.all()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = ProductSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        else:
+            serializer = ProductSerializer(queryset, many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
     def get_serializer_class(self):
         if self.action in ('list', 'create'):
             return ProductSerializer

@@ -20,6 +20,15 @@
           v-bind:product="product"
       />
     </div>
+    <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
+      <a class="pagination-previous" @click="getProducts(previous)" :class="{ 'is-disabled': !previous }">Previous</a>
+      <a class="pagination-next" @click="getProducts(next)" :class="{ 'is-disabled': !next }">Next page</a>
+      <ul class="pagination-list">
+        <li v-for="index in Math.ceil(count/pageSize)" :key="index">
+          <a class="pagination-link" :class="{ 'is-current': page == index }" :aria-label="'Go to page ' + index" @click="getProducts('/api/v1/products/?page=' + index)"> {{index}} </a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -30,7 +39,12 @@ export default {
   name: 'HomeView',
   data(){
     return {
-      products:[]
+      products:[],
+      count: 0,
+      next: null,
+      previous: null,
+      page: 1,
+      pageSize: 20
     }
   },
   components: {
@@ -41,11 +55,22 @@ export default {
     document.title = "Home | eCommerce"
   },
   methods: {
-    getProducts: async function(){
+    getProducts: async function(path_param=null){
       this.$store.commit('setIsLoading', true)
-
-      await axios.get('/api/v1/products').then(response =>{
+      let path_url = '/api/v1/products'
+      if (path_param) {
+        path_url = path_param
+      }
+      if (path_url.includes('page=')) {
+        this.page = path_url.split('page=')[1]
+      } else {
+        this.page = 1
+      }
+      await axios.get(path_url).then(response =>{
         this.products = response.data.results
+        this.count = response.data.count
+        this.next = response.data.next
+        this.previous = response.data.previous
       }).catch(error =>{
         console.log(error)
       })

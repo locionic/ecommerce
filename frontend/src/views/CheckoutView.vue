@@ -42,28 +42,28 @@
         <div class="columns is-multiline">
           <div class="column is-6">
             <div class="field">
-              <label for="">First name*</label>
+              <label>First name*</label>
               <div class="control">
                 <input id='first_name-input' type="text" class="input" v-model="first_name">
               </div>
             </div>
 
             <div class="field">
-              <label for="">Last name*</label>
+              <label>Last name*</label>
               <div class="control">
                 <input id='last_name-input' type="text" class="input" v-model="last_name">
               </div>
             </div>
 
             <div class="field">
-              <label for="">E-mail*</label>
+              <label>E-mail*</label>
               <div class="control">
                 <input id='email-input' type="email" class="input" v-model="email">
               </div>
             </div>
 
             <div class="field">
-              <label for="">Phone*</label>
+              <label>Phone*</label>
               <div class="control">
                 <input id='phone-input' type="text" class="input" v-model="phone">
               </div>
@@ -72,21 +72,21 @@
           </div>
           <div class="column is-6">
             <div class="field">
-              <label for="">Address*</label>
+              <label>Address*</label>
               <div class="control">
                 <input id='address-input' type="text" class="input" v-model="address">
               </div>
             </div>
 
             <div class="field">
-              <label for="">Zip code</label>
+              <label>Zip code</label>
               <div class="control">
                 <input id='zipcode-input' type="number" class="input" v-model="zipcode">
               </div>
             </div>
 
             <div class="field">
-              <label for="">Place*</label>
+              <label>Place*</label>
               <div class="control">
                 <input id='place-input' type="text" class="input" v-model="place">
               </div>
@@ -145,12 +145,21 @@ export default {
       place:"",
       cash_on_delivery: false,
       errors: [],
+      payment_method: 'online'
     }
   },
   mounted() {
     document.title = "Checkout"
     this.cart = this.$store.state.cart
-
+    if (this.$store.state.formAddress) {
+      this.first_name = this.$store.state.formAddress.first_name
+      this.last_name = this.$store.state.formAddress.last_name
+      this.email = this.$store.state.formAddress.email
+      this.phone = this.$store.state.formAddress.phone
+      this.address = this.$store.state.formAddress.address
+      this.zipcode = this.$store.state.formAddress.zipcode
+      this.place = this.$store.state.formAddress.place
+    }
   },
   methods: {
     getItemTotal(item){
@@ -235,6 +244,7 @@ export default {
         items: items
       }
       this.$store.commit('setIsLoading', true)
+      this.$store.commit('setFormAddress', formData)
       await axios.
       post('/api/v1/orders/', formData)
           .then(response => {
@@ -242,7 +252,8 @@ export default {
               const data = response.data
               window.open(data.paypal[0].links[1].href)
             }
-
+            this.$store.commit('clearCart')
+            this.$router.push('/my-orders')
           }).catch(errors =>{
             console.log(errors)
           }

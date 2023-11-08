@@ -14,7 +14,8 @@
       >
         view details
       </router-link> -->
-      view-details
+      view-detail
+      <!-- {{order}} -->
     </h3>
 
 

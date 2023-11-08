@@ -59,6 +59,7 @@ export default {
         username: this.username,
         password: this.password
       }
+      console.log(this.$router)
       await axios
           .post('api/v1/token/login', formData)
           .then(response =>{
@@ -66,9 +67,9 @@ export default {
             // this.$store.commit('setToken', token)
             axios.defaults.headers.common['Authorization'] = "Token " + token
             localStorage.setItem('token', token)
-            const toPath = this.$route.query.to || '/cart'
-            console.log(toPath)
-            this.$router.push(toPath)
+            const toPath = this.$route.query.to || '/'
+            this.$router.replace({ path: toPath })
+            this.$store.commit('initializeStore')
           })
           .catch(error =>{
             if (error.response){
@@ -78,7 +79,6 @@ export default {
                 )
                 document.getElementById(`${property}-input`).setAttribute('class', 'input is-danger')
               }
-              console.log(JSON.stringify(error.response.data))
             }else if(error.message){
               this.errors.push(`Something went wrong, Please try again`)
               console.log(JSON.stringify(error))

@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <nav class="navbar is-dark">
+    <nav class="navbar is-dark custom-blur-down" style="position: sticky; top: 0;">
       <div class="navbar-brand">
         <router-link to="/" class="navbar-item"><strong>eCommerce</strong></router-link>
         <a class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu" @click="showMobileMenu = !showMobileMenu">
@@ -118,6 +118,11 @@ export default {
       console.log(error)
     })
   },
+  watch: {
+    '$store.state.cart' (val) {
+      this.cart = val
+    }
+  },
   computed:{
     cartTotalLength(){
       let totalLength = 0
@@ -131,6 +136,10 @@ export default {
 </script>
 <style lang="scss">
 @import "../node_modules/bulma";
+/* .custom-blur-down {
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translateZ(0) scale(1.0, 1.0);
+} */
 .lds-dual-ring{
   display: inline-block;
   width: 80px;

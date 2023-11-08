@@ -92,7 +92,6 @@ export default {
             .post('/api/v1/users/', formData)
             .then(response =>{
               console.log(response)
-              console.log('response done')
               toast({
                 message: 'Account created, please log in!',
                 type:'is-success',

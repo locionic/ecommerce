@@ -212,6 +212,12 @@ class Dev(Configuration):
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET')
 
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+
 
 class Prod(Dev):
     DEBUG = int(os.environ.get('MAIN_DEBUG', 0))

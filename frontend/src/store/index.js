@@ -1,13 +1,16 @@
 import { createStore } from 'vuex'
+import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
+  plugins: [ createPersistedState() ],
   state: {
     cart:{
       items:[],
     },
     isAuthenticated: false,
     token: '',
-    isLoading: false
+    isLoading: false,
+    formAddress: null,
   },
   getters: {
   },
@@ -43,7 +46,9 @@ export default createStore({
     clearCart(state){
       state.cart = {items: []}
       localStorage.setItem('cart', JSON.stringify(state.cart))
-
+    },
+    setFormAddress(state, form) {
+      state.formAddress = form
     }
   },
   actions: {
