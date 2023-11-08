@@ -4,21 +4,7 @@
       Order #{{order.payment_token}} <span v-if="order.delivered" class="has-text-success pl-4"> Delivered</span>
       <span v-else class="has-text-danger pl-4">Not delivered yet</span>
     </h3>
-    <h3 class="is-size-5 mb-5">
-      <!-- <router-link
-          v-bind:to="{
-          name: 'order',
-          params: {order_id: order.payment_token}
-        }"
-
-      >
-        view details
-      </router-link> -->
-      view-detail
-      <!-- {{order}} -->
-    </h3>
-
-
+    <MyDropdown :order="order" />
     <h4 class="is-size-5">Products</h4>
     <table class="table is-fullwidth">
       <thead>
@@ -65,25 +51,32 @@
 </template>
 
 <script>
+import MyDropdown from './MyDropdown'
+
 export default {
-  name:"OrderSummary",
-  props:{
-    order:Object
-  },
-  methods:{
-    getItemTotal(item){
-      return item.quantity * item.product.price
+    name: "OrderSummary",
+    props: {
+        order: Object
     },
-    orderTotalLength(order){
-      return order.items.reduce((acc, curVal) => {
-        return acc + curVal.quantity
-      }, 0)
+    components: {
+      MyDropdown
     },
-    orderTotalPrice: function () {
-      return this.order.items.reduce((acc, curVal) => {
-        return acc + curVal.quantity * curVal.product.price
-      }, 0)
+    methods: {
+        getItemTotal(item) {
+            return item.quantity * item.product.price;
+        },
+        orderTotalLength(order) {
+            return order.items.reduce((acc, curVal) => {
+                return acc + curVal.quantity;
+            }, 0);
+        },
+        orderTotalPrice: function () {
+            return this.order.items.reduce((acc, curVal) => {
+                return acc + curVal.quantity * curVal.product.price;
+            }, 0);
+        }
     }
-  }
 }
 </script>
+<style lang="scss">
+</style>

@@ -1,8 +1,8 @@
 import { createStore } from 'vuex'
-import createPersistedState from "vuex-persistedstate";
+// import createPersistedState from "vuex-persistedstate";
 
 export default createStore({
-  plugins: [ createPersistedState() ],
+  // plugins: [ createPersistedState() ],
   state: {
     cart:{
       items:[],
@@ -11,6 +11,7 @@ export default createStore({
     token: '',
     isLoading: false,
     formAddress: null,
+    showDetail: ['first_name', 'last_name', 'email', 'phone', 'address', 'zipcode', 'place', 'cash_on_delivery', 'created_at']
   },
   getters: {
   },

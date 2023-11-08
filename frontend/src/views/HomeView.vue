@@ -20,21 +20,14 @@
           v-bind:product="product"
       />
     </div>
-    <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
-      <a class="pagination-previous" @click="getProducts(previous)" :class="{ 'is-disabled': !previous }">Previous</a>
-      <a class="pagination-next" @click="getProducts(next)" :class="{ 'is-disabled': !next }">Next page</a>
-      <ul class="pagination-list">
-        <li v-for="index in Math.ceil(count/pageSize)" :key="index">
-          <a class="pagination-link" :class="{ 'is-current': page == index }" :aria-label="'Go to page ' + index" @click="getProducts('/api/v1/products/?page=' + index)"> {{index}} </a>
-        </li>
-      </ul>
-    </nav>
+    <MyPagination @get-results="(path_param) => getProducts(path_param)" :count="count" :previous="previous" :next="next" :page="page" :default-api-get="defaultApiGet" />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import ProductBox from "@/components/ProductBox";
+import MyPagination from "@/components/MyPagination";
 export default {
   name: 'HomeView',
   data(){
@@ -44,11 +37,13 @@ export default {
       next: null,
       previous: null,
       page: 1,
-      pageSize: 20
+      pageSize: 20,
+      defaultApiGet: '/api/v1/products'
     }
   },
   components: {
-    ProductBox
+    ProductBox,
+    MyPagination
   },
   mounted() {
     this.getProducts()
@@ -59,10 +54,10 @@ export default {
       this.$store.commit('setIsLoading', true)
       let path_url = '/api/v1/products'
       if (path_param) {
-        path_url = path_param
+        path_url = '/api' + path_param.split('/api')[1]
       }
       if (path_url.includes('page=')) {
-        this.page = path_url.split('page=')[1]
+        this.page = parseInt(path_url.split('page=')[1])
       } else {
         this.page = 1
       }
