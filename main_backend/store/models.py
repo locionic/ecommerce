@@ -89,7 +89,7 @@ class Album(models.Model):
 
 
 class Review(models.Model):
-    created_by = models.ForeignKey(User, related_name='review_creator', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, related_name='review_creator', on_delete=models.CASCADE, null=True)
     content = models.TextField()
     rate = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

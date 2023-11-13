@@ -2,7 +2,7 @@
   <div id="wrapper">
     <nav class="navbar is-dark custom-blur-down" style="position: sticky; top: 0;">
       <div class="navbar-brand">
-        <router-link to="/" class="navbar-item"><strong>eCommerce</strong></router-link>
+        <router-link to="/" class="navbar-item"><strong>iShop</strong></router-link>
         <a class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu" @click="showMobileMenu = !showMobileMenu">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
@@ -74,6 +74,7 @@
           </div>
         </div>
     </nav>
+    <ScrollTopButton />
     <div class="is-loading-bar has-text-centered" v-bind:class="{'is-loading': $store.state.isLoading}">
       <div class="lds-dual-ring">
 
@@ -89,8 +90,12 @@
 </template>
 <script>
 import axios from "axios";
+import ScrollTopButton from "@/components/ScrollTopButton";
 
 export default {
+  components: {
+    ScrollTopButton
+  },
   data(){
     return{
       Categories: [],

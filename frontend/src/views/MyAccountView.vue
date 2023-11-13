@@ -12,9 +12,9 @@
         </div>
         <div class="column is-4-tablet is-10-mobile name">
           <p>
-            <span class="title is-bold">{{user.first_name}} <span v-if="user.last_name"><br/> {{user.last_name}}</span></span>
+            <span class="title is-bold">{{ user?.first_name }} <span v-if="user && user.last_name"><br/> {{ user?.last_name }}</span></span>
             <br>
-            <a class="button is-primary is-outlined" href="#" style="margin: 5px 0">
+            <a class="button is-primary is-outlined" href="#" style="margin: 5px 0" @click="activeDialog = true">
               Edit profile
             </a>
             <br/>
@@ -22,7 +22,7 @@
             <br>
           </p>
         </div>
-        <template v-if="user.is_seller || user.is_staff">
+        <template v-if="user && (user.is_seller || user.is_staff)">
           <div class="column is-2-tablet is-4-mobile has-text-centered">
             <p class="stat-val">30</p>
             <p class="stat-key">Products</p>
@@ -38,24 +38,35 @@
         </template>
       </div>
     </div>
-
     <div class="column is-12">
       <button @click="logout()" class="button is-danger">Log out</button>
     </div>
+    <MyDialog v-if="user" titleParam="Edit profile" :object-param="user" :list-attribute="['first_name', 'last_name', 'username', 'email', 'avatar']" :active="activeDialog" @reset-user="resetUser" @unactive-dialog="unactiveDialog" />
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import MyDialog from "@/components/MyDialog.vue";
 
 export default {
   name: "MyAccountView",
   data(){
     return{
-      user: "",
+      user: null,
+      activeDialog: false
     }
   },
+  components: {
+    MyDialog
+  },
   methods:{
+    unactiveDialog() {
+      this.activeDialog = false
+    },
+    resetUser() {
+      this.getInfo()
+    },
     logout(){
       axios.defaults.headers.common["Authorization"] = ""
       localStorage.removeItem("token")
@@ -75,6 +86,11 @@ export default {
       })
 
       this.$store.commit('setIsLoading', false)
+    },
+    handleKeyDown(event) {
+      if (event.code === 'Escape' && this.activeDialog) {
+        this.activeDialog = false
+      }
     }
   },
   mounted() {
@@ -82,7 +98,11 @@ export default {
       this.$router.push("/login")
     }
     this.getInfo()
-  }
+    window.addEventListener("keydown", this.handleKeyDown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.handleKeyDown);
+  },
 }
 </script>
 

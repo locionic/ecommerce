@@ -1,9 +1,10 @@
 <template>
   <div class="home">
+    
     <section class="hero is-medium mb-6" style="background-image: url(https://websitedemos.net/be-bold-beauty-store-04/wp-content/uploads/sites/1117/2022/08/hero.jpg); border-radius: 1rem;">
       <div class="hero-body has-text-centered">
         <p class="title mb-6">
-          Welcome to eCommerce!
+          Welcome to iShop!
         </p>
         <p class="subtitle">
           The online shopping store.
@@ -28,6 +29,7 @@
 import axios from 'axios'
 import ProductBox from "@/components/ProductBox";
 import MyPagination from "@/components/MyPagination";
+
 export default {
   name: 'HomeView',
   data(){
@@ -47,7 +49,7 @@ export default {
   },
   mounted() {
     this.getProducts()
-    document.title = "Home | eCommerce"
+    document.title = "Home | iShop"
   },
   methods: {
     getProducts: async function(path_param=null){

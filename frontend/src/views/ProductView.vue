@@ -15,12 +15,12 @@
             </template>
           </Carousel>
         </figure>
-        <p>{{product.description}}</p>
+        
       </div>
       <div class="column is-3">
         <h2 class="subtitle">Information</h2>
         <p><strong>Price: </strong>{{product.price}}</p>
-        <div class="field has-addons mb-6">
+        <div class="field has-addons mb-4">
           <div class="control">
             <input type="number" class="input" min="1" v-model="quantity">
           </div>
@@ -28,6 +28,7 @@
             <a class="button is-dark" @click="addToCart(quantity, product)">Add to cart</a>
           </div>
         </div>
+        <p><strong>Description: </strong>{{product.description}}</p>
       </div>
     </div>
   </div>
@@ -35,7 +36,6 @@
 
 <script>
 import axios from "axios";
-// import {toast} from "bulma-toast"
 import 'vue3-carousel/dist/carousel.css';
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel';
 import MixinFunctions from "@/components/MixinFunctions";

@@ -8,6 +8,20 @@ class CreatorModifyOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
 
         return request.user == obj.created_by
 
+class SelfOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user == obj
+
+class CreateOrCreatorModify(permissions.IsAuthenticatedOrReadOnly):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            return True
+
+        return request.user == obj.created_by
+
 
 class IsAdminUserForObject(permissions.IsAdminUser):
     def has_object_permission(self, request, view, obj):

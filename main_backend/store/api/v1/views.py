@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers, vary_on_cookie
@@ -6,17 +7,19 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from store.api.v1.permissions import CreatorModifyOrReadOnly, IsAdminUserForObject, \
-    IsSellerUser, SellerModifyOrReadOnly, IsReviewReadOnly, CategoryPermission
+    IsSellerUser, SellerModifyOrReadOnly, IsReviewReadOnly, CategoryPermission, \
+    CreateOrCreatorModify
 from store.api.v1.serializers import ProductSerializer, ProductDetailSerializer,\
     AlbumSerializer, ReviewSerializer, CategorySerializer
 from store.models import Product, Album, Category, Review
+
 
 User = get_user_model()
 
@@ -45,16 +48,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
     queryset = Product.objects.all()
     permission_classes = [IsReviewReadOnly | SellerModifyOrReadOnly | IsAdminUserForObject | IsSellerUser]
-
-    def list(self, request):
-        queryset = Product.objects.all()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = ProductSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
-        else:
-            serializer = ProductSerializer(queryset, many=True, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_serializer_class(self):
         if self.action in ('list', 'create'):
@@ -107,8 +100,21 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
-    permission_classes = [CreatorModifyOrReadOnly | IsAdminUserForObject]
+    permission_classes = [CreateOrCreatorModify]
     serializer_class = ReviewSerializer
+    content_type_pk = ContentType.objects.get(app_label="store", model="product").pk
+
+    def create(self, request, *args, **kwargs):
+        custom_data = request.data
+        print(request.user)
+        # if request.user:
+        #     custom_data['created_by'] = request.user
+        custom_data['content_type'] = self.content_type_pk
+        serializer = self.get_serializer(data=custom_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class AlbumViewSet(viewsets.ModelViewSet):

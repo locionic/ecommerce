@@ -2,7 +2,7 @@
   <div class="dropdown" :class="{ 'is-active': active }">
     <div class="dropdown-trigger">
       <button class="button" aria-haspopup="true" aria-controls="dropdown-menu2" @click="active = !active">
-        <span>View-detail</span>
+        <span>View detail</span>
         <span class="icon is-small">
           <i class="fas fa-angle-down" aria-hidden="true"></i>
         </span>
