@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import MyDropdown from './MyDropdown'
+import MyDropdown from '@/components/MyDropdown'
 
 export default {
     name: "OrderSummary",

@@ -11,13 +11,13 @@
       </div>
         <div class="navbar-menu" id="navbar-menu" v-bind:class="{'is-active': showMobileMenu}">
           <div class="navbar-start">
-            <router-link class="navbar-item" to="/">
+            <!-- <router-link class="navbar-item" to="/">
               Home
             </router-link>
 
             <router-link class="navbar-item" to="/about">
               About
-            </router-link>
+            </router-link> -->
 
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link">

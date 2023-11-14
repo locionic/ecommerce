@@ -19,6 +19,7 @@ from store.api.v1.permissions import CreatorModifyOrReadOnly, IsAdminUserForObje
 from store.api.v1.serializers import ProductSerializer, ProductDetailSerializer,\
     AlbumSerializer, ReviewSerializer, CategorySerializer
 from store.models import Product, Album, Category, Review
+from users.api.v1.serializers import UserSerializer
 
 
 User = get_user_model()
@@ -107,14 +108,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         custom_data = request.data
         print(request.user)
-        # if request.user:
-        #     custom_data['created_by'] = request.user
         custom_data['content_type'] = self.content_type_pk
+        print(custom_data)
         serializer = self.get_serializer(data=custom_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        if not self.request.user.is_anonymous:
+            serializer.save(created_by=self.request.user)
 
 
 class AlbumViewSet(viewsets.ModelViewSet):

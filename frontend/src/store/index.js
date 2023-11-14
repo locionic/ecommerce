@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 // import createPersistedState from "vuex-persistedstate";
+import axios from "axios";
 
 export default createStore({
   // plugins: [ createPersistedState() ],
@@ -50,6 +51,13 @@ export default createStore({
     },
     setFormAddress(state, form) {
       state.formAddress = form
+    },
+    removeToken(state) {
+      axios.defaults.headers.common["Authorization"] = ""
+      localStorage.removeItem("token")
+      localStorage.removeItem("username")
+      localStorage.removeItem("userid")
+      state.isAuthenticated = false
     }
   },
   actions: {

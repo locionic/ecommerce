@@ -54,7 +54,8 @@ export default {
       }
       axios.get(path_url)
           .then(response => {
-            this.orders = response.data.results.map(ele => ({...ele, created_at: ele.created_at.split('.')[0]}))
+            this.orders = response.data.results
+            // .map(ele => ({...ele, created_at: ele.created_at.split('.')[0]}))
             this.count = response.data.count
             this.next = response.data.next
             this.previous = response.data.previous

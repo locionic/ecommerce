@@ -2,9 +2,11 @@
   <div
       ref="scrollTopButton"
       class="fixed w-full flex justify-end bottom-40 pb-3 pr-5 transition z-5"
+      style="width: max-content; right: 0;"
   >
       <div
           class="text-gray-400 hover:text-blue-400 transition"
+          style="width: max-content;"
       >
           <button @click="scrollToTop" class="button is-rounded is-primary">
             <i v-if="windowScrollY > 0" class="fa fa-arrow-up"></i>
@@ -38,7 +40,7 @@
                 if (window.scrollY > 0) {
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 } else {
-                  window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 }
             },
         },

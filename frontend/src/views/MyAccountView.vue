@@ -6,11 +6,9 @@
     <div class="section profile-heading">
       <div class="columns is-mobile is-multiline">
         <div class="column is-2">
-          <span class="header-icon user-profile-image">
-            <img alt="" src="">
-          </span>
+          <img alt="The account avatar" :src="user?.avatar ? user.avatar : 'https://bulma.io/images/placeholders/128x128.png'">
         </div>
-        <div class="column is-4-tablet is-10-mobile name">
+        <div class="column is-2-tablet is-4-mobile name">
           <p>
             <span class="title is-bold">{{ user?.first_name }} <span v-if="user && user.last_name"><br/> {{ user?.last_name }}</span></span>
             <br>
@@ -22,18 +20,22 @@
             <br>
           </p>
         </div>
-        <template v-if="user && (user.is_seller || user.is_staff)">
+        <template v-if="user">
           <div class="column is-2-tablet is-4-mobile has-text-centered">
-            <p class="stat-val">30</p>
+            <p class="stat-val">{{user?.products_number ? user.products_number : 0}}</p>
             <p class="stat-key">Products</p>
           </div>
           <div class="column is-2-tablet is-4-mobile has-text-centered">
-            <p class="stat-val">10</p>
+            <p class="stat-val">{{user?.reviews_number ? user.reviews_number : 0}}</p>
             <p class="stat-key">Reviews</p>
           </div>
           <div class="column is-2-tablet is-4-mobile has-text-centered">
-            <p class="stat-val">5</p>
+            <p class="stat-val">{{ user?.products_sold_number ? user.products_sold_number : 0 }}</p>
             <p class="stat-key">Sold</p>
+          </div>
+          <div class="column is-2-tablet is-4-mobile has-text-centered">
+            <p class="stat-val">{{ user?.products_bought_number ? user.products_bought_number : 0 }}</p>
+            <p class="stat-key">Bought</p>
           </div>
         </template>
       </div>
@@ -68,11 +70,6 @@ export default {
       this.getInfo()
     },
     logout(){
-      axios.defaults.headers.common["Authorization"] = ""
-      localStorage.removeItem("token")
-      localStorage.removeItem("username")
-      localStorage.removeItem("userid")
-
       this.$store.commit("removeToken")
       this.$router.push('/')
     },

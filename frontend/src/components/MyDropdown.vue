@@ -18,7 +18,14 @@
           </thead>
           <tbody>
             <tr>
-              <td v-for="(detail, index) in $store.state.showDetail" :key="index + 'td'">{{ order[detail] }}</td>
+              <td v-for="(detail, index) in $store.state.showDetail" :key="index + 'td'">
+                <template v-if="detail == 'created_at'">
+                  {{ $filters.yyyymmddthhmmsszToNormal(order[detail]) }}
+                </template>
+                <template v-else>
+                  {{ order[detail] }}
+                </template>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -28,7 +35,7 @@
 </template>
 <script>
 export default {
-  name:"MyDropdown",
+  name: "MyDropdown",
   props:{
     order:Object
   },

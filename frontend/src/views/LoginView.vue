@@ -5,7 +5,7 @@
         <h1 class="title">Log in</h1>
         <form @submit.prevent="submitForm">
           <div class="field">
-            <label for="">Username or Email</label>
+            <label>Username or Email</label>
             <div class="control">
               <input type="text" placeholder="Please enter your username or email"
                      class="input" id="email-input" v-model="username"
@@ -13,7 +13,7 @@
             </div>
           </div>
           <div class="field">
-            <label for="">Password</label>
+            <label>Password</label>
             <div class="control">
               <input type="password" placeholder="Please enter your password" class="input" id="password-input" v-model="password">
             </div>

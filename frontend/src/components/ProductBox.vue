@@ -13,7 +13,7 @@
       <div class="display-inline-flex mt-4">
         <p class="is-size-6 has-text-grey-dark vertical-align">&dollar;{{product.price}}</p>
         <button
-          class="button is-dark custom-background-color-button"
+          class="button is-primary"
           @click="addToCart(1, product)"
         >
           Add to cart

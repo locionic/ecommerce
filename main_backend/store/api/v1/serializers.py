@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from store.models import Category, Album, Review, Product
 from django.contrib.auth import get_user_model
+from users.api.v1.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -37,12 +38,13 @@ class AlbumSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    created_by = serializers.HyperlinkedRelatedField(
-        queryset=User.objects.all(),
-        view_name="api_user_detail",
-        lookup_field="username",
-        required=False
-    )
+    # created_by = serializers.HyperlinkedRelatedField(
+    #     queryset=User.objects.all(),
+    #     view_name="api_user_detail",
+    #     lookup_field="username",
+    #     required=False
+    # )
+    created_by = UserSerializer(required=False, read_only=True)
 
     class Meta:
         model = Review

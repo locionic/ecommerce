@@ -4,7 +4,7 @@
     <div class="modal-card">
       <header class="modal-card-head">
         <p class="modal-card-title">{{titleParam}}</p>
-        <button class="delete" aria-label="close" @click="() => console.log('click close')"></button>
+        <button class="delete" aria-label="close" @click="$emit('unactiveDialog')"></button>
       </header>
       <section class="modal-card-body">
         <!-- Content ... -->

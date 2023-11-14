@@ -1,6 +1,9 @@
 from djoser.serializers import UserSerializer as djoser_UserSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from store.models import Product, Review
+from orders.models import OrderItem
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -17,9 +20,22 @@ djoser_UserSerializer.Meta.read_only_fields += ('created_at',)
 
 
 class CurrentUserSerializer(djoser_UserSerializer):
+    products_number = serializers.SerializerMethodField('get_products_number')
+    reviews_number = serializers.SerializerMethodField('get_reviews_number')
+    products_bought_number = serializers.SerializerMethodField('get_products_bought_number')
+    products_sold_number = serializers.SerializerMethodField('get_products_sold_number')
     class Meta(djoser_UserSerializer.Meta):
-        fields = ["first_name", "last_name", "username", "email", "created_at", "is_seller", "is_staff", "avatar"]
+        fields = ["first_name", "last_name", "username", "email", "created_at", "is_seller", "is_staff", "avatar", "products_number", "reviews_number", "products_bought_number", "products_sold_number"]
         read_only_fields = djoser_UserSerializer.Meta.read_only_fields + ('created_at',)
+    def get_products_number(self, instance):
+        return Product.objects.filter(created_by=instance).count()
+    def get_reviews_number(self, instance):
+        return Review.objects.filter(created_by=instance).count()
+    def get_products_bought_number(self, instance):
+        return OrderItem.objects.filter(order__created_by=instance).aggregate(Sum('quantity'))['quantity__sum']
+    def get_products_sold_number(self, instance):
+        return OrderItem.objects.filter(product__created_by=instance).aggregate(Sum('quantity'))['quantity__sum']
+    
 
 class Base64ImageField(serializers.ImageField):
     """
@@ -78,6 +94,3 @@ class UserPostPutPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "email", "avatar"]
-        extra_kwargs = {
-            'avatar': {'required': False}
-        }
