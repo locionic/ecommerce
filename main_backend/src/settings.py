@@ -132,7 +132,7 @@ class Dev(Configuration):
 
     # STATIC_URL = 'static/'
     # STATIC_ROOT = 'static/'
-    STATIC_URL = 'media/'
+    STATIC_URL = 'https://ecommerce-x3n5.onrender.com/media/'
     STATIC_ROOT = 'media/'
     # define where uploaded files are saved.
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
