@@ -107,9 +107,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         custom_data = request.data
-        print(request.user)
         custom_data['content_type'] = self.content_type_pk
-        print(custom_data)
         serializer = self.get_serializer(data=custom_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

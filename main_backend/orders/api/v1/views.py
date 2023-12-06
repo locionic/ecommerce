@@ -27,90 +27,30 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = [authentication.TokenAuthentication]
     serializer_class = OrderSerializer
 
-    # @method_decorator(cache_page(5))
-    # def get_queryset(self, request):
-    #     # self.queryset = Order.objects.all()
-    #     # return self.queryset
-    #     # queryset = super(OrderViewSet, self).get_queryset()
-    #     queryset = self.queryset.all()
-    #     print('queryset here: ', queryset)
-    #     return queryset
-
-    # def list(self, request, *args, **kwargs):
-    #     print('override or not?')
-    #     serializer = self.serializer_class(self.queryset.all(), many=True)
-    #     return Response(serializer.data)
-
-    # def list(self, request):
-    #     pass
-
-    # def create(self, request):
-    #     pass
-
-    # def retrieve(self, request, pk=None):
-    #     pass
-
-    # def update(self, request, pk=None):
-    #     pass
-
-    # def partial_update(self, request, pk=None):
-    #     pass
-
-    # def destroy(self, request, pk=None):
-    #     pass
-
-    # def list(self, request, *args, **kwargs):
-    #     print('fuck?')
-
-    # @method_decorator(never_cache)
-    # def list(self, request, *args, **kwargs):
-    #     queryset.all()
-    #     return super().list(request, *args, *kwargs)
-
     def get_serializer_class(self):
         if self.action == "mine":
-            print('specify what is serializer class: ', self.action)
             return MyOrderSerializer
         return OrderSerializer
 
     def create(self, request, *args, **kwargs):
-        print('vao ay achua???')
         serializer = self.serializer_class(data=request.data)
-        print(serializer.is_valid())
-        print('khong valid a?')
         if serializer.is_valid():
-            print('tai sao 01')
             paid_amount = sum(
                 item.get('quantity') * item.get('product').price for item in serializer.validated_data['items']
             )
-            print('tai sao 02')
             cash_on_delivery = serializer.validated_data["cash_on_delivery"]
-            print('tai sao 03')
 
             if cash_on_delivery:
                 generated_key = 'cash-' + ''.join(random.choice(string.ascii_lowercase) for _ in range(16))
                 serializer.save(created_by=request.user, paid_amount=paid_amount, payment_token=generated_key)
-                print('tai sao 05')
                 self.queryset = self.queryset.all()
-                print(self.queryset)
-                print('tong cong bao nhieu')
-                print(self.queryset.count())
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            print('tai sao 04')
             order = get_paypal_client().create_order(paid_amount,
                                                      return_url=request.data.get('return_url', "http://localhost:8080"),
                                                      cancel_url=request.data.get('cancel_url', "http://localhost:8080")
-                                                     )
-            print('tai sao 07')                                                        
+                                                     )                                                    
             serializer.save(created_by=request.user, paid_amount=paid_amount, payment_token=order.get('id'))
-            # self.queryset = self.queryset.all()
-            print('create roi?')
-            print(order)
-            print('ahahhahhah')
             self.queryset = self.queryset.all()
-            print(self.queryset)
-            print('tong cong bao nhieu')
-            print(self.queryset.count())
             return Response(
                 {
                     "paypal": [

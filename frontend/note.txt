@@ -1,1 +1,3 @@
 "vue3-carousel": "^0.2.5",
+https://ecommerce-locionic.vercel.app/
+https://note-app-locionic.vercel.app/

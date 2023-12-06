@@ -61,7 +61,7 @@ class CustomUser(AbstractUser):
         temp_handle.seek(0)
 
         # Save image to a SimpleUploadedFile which can be saved into ImageField
-        print(os.path.split(self.avatar.name)[-1])
+        # print(os.path.split(self.avatar.name)[-1])
         suf = SimpleUploadedFile(os.path.split(self.avatar.name)[-1],
                                  temp_handle.read(), content_type=DJANGO_TYPE)
 
