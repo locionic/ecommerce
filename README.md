@@ -58,8 +58,8 @@ docker-compose up
 
 ### Development environment environment:
 
-- For main_app application read [Main App README](https://github.com/abdoohossamm/eCommerce/tree/main/main_backend#readme) for more details
-- For frontend application read [Frontend README](https://github.com/abdoohossamm/eCommerce/tree/main/frontend#readme) for more details
+- For main_app application read [Main App README](https://github.com/locionic/ecommerce/tree/main/main_backend#readme) for more details
+- For frontend application read [Frontend README](https://github.com/locionic/ecommerce/tree/main/frontend#readme) for more details
 
 ## Version History
 
