@@ -5,8 +5,8 @@ import store from './store'
 import axios from "axios";
 import '@/assets/global.scss';
 
-// axios.defaults.baseURL = "http://127.0.0.1:8000"
-axios.defaults.baseURL = "http://127.0.0.1:8000"
+// Use production Render URL, fallback to local if needed
+axios.defaults.baseURL = process.env.VUE_APP_API_URL || "https://ecommerce-x3n5.onrender.com"
 const app = createApp(App)
 
 app.config.globalProperties.$filters = {
