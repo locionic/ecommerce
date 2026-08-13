@@ -104,10 +104,6 @@ export default {
 </script>
 
 <style scoped>
-body {
-  background: #F5F7FA
-}
-
 .stat-val {
   font-size: 3em;
   padding-top: 20px;
@@ -120,7 +116,7 @@ body {
 }
 
 .section.profile-heading .column.is-2-tablet.has-text-centered + .has-text-centered {
-  border-left: 1px dotted rgba(0, 0, 0, .2);
+  border-left: 1px dotted rgba(255, 255, 255, .2);
 }
 
 .container.profile {
@@ -134,12 +130,13 @@ body {
 
 .modal-card .content h1 {
   padding: 40px 10px 10px;
-  border-bottom: 1px solid #dadada
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .container.profile .profile-options .tabs ul li.link a {
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #F1F1F1;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #fff;
 }
 </style>

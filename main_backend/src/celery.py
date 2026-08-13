@@ -8,9 +8,7 @@ if not os.environ.get('DJANGO_CONFIGURATION'):
     os.environ.setdefault('DJANGO_CONFIGURATION', 'Dev')
 
 
-import configurations
 
-configurations.setup()
 
 app = Celery("src")
 app.config_from_object("django.conf:settings", namespace="CELERY")
