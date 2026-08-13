@@ -82,7 +82,7 @@
     </div>
     
     <!-- Render Demo Notice Modal -->
-    <div class="modal" :class="{'is-active': showDemoModal}">
+    <div class="modal" :class="{'is-active': showDemoModal}" style="z-index: 2000;">
       <div class="modal-background" @click="showDemoModal = false"></div>
       <div class="modal-content">
         <div class="box p-6 has-text-centered" style="background: rgba(17,24,39,0.9); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); border-radius: 20px;">
