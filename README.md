@@ -1,5 +1,9 @@
 # eCommerce
-Free open source microservices eCommerce Application with django and vue.js. 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-ishop.locionic.com-10b981?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ishop.locionic.com/)
+
+🌐 **Live Demo Website:** [https://ishop.locionic.com/](https://ishop.locionic.com/)
+
+Free open source microservices eCommerce Application with Django and Vue.js. 
 
 ### Prerequisites:
 
