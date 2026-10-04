@@ -1,0 +1,85 @@
+{
+  "consoleErrors": [],
+  "networkErrors": [],
+  "pageErrors": [],
+  "results": [
+    {
+      "step": "Main Page Load",
+      "status": "pass",
+      "details": "Loaded main page and closed demo modal",
+      "time": "2026-08-13T07:51:12.656Z"
+    },
+    {
+      "step": "Category Navigation",
+      "status": "pass",
+      "details": "Navigated to category: http://localhost:8080/category/automotive",
+      "time": "2026-08-13T07:51:15.699Z"
+    },
+    {
+      "step": "Search",
+      "status": "pass",
+      "details": "Search results page URL: http://localhost:8080/search?search=laptop",
+      "time": "2026-08-13T07:51:18.531Z"
+    },
+    {
+      "step": "Product Detail Load",
+      "status": "pass",
+      "details": "Navigated to http://localhost:8080/",
+      "time": "2026-08-13T07:51:21.895Z"
+    },
+    {
+      "step": "Add To Cart",
+      "status": "pass",
+      "details": "Clicked Add to Cart button",
+      "time": "2026-08-13T07:51:22.719Z"
+    },
+    {
+      "step": "Cart Page Load",
+      "status": "pass",
+      "details": "Loaded cart page: http://localhost:8080/cart",
+      "time": "2026-08-13T07:51:24.838Z"
+    },
+    {
+      "step": "Checkout Redirect (Unauthenticated)",
+      "status": "pass",
+      "details": "Redirected to: http://localhost:8080/cart",
+      "time": "2026-08-13T07:51:26.426Z"
+    },
+    {
+      "step": "Signup Validation",
+      "status": "pass",
+      "details": "Captured signup validation state",
+      "time": "2026-08-13T07:51:29.185Z"
+    },
+    {
+      "step": "Signup Execution",
+      "status": "pass",
+      "details": "Created user testuser_1786607489185, current URL: http://localhost:8080/signup",
+      "time": "2026-08-13T07:51:31.577Z"
+    },
+    {
+      "step": "Login Execution",
+      "status": "pass",
+      "details": "Submitted login, current URL: http://localhost:8080/login",
+      "time": "2026-08-13T07:51:35.901Z"
+    },
+    {
+      "step": "My Account Page",
+      "status": "pass",
+      "details": "My Account URL: http://localhost:8080/login?to=/my-account",
+      "time": "2026-08-13T07:51:38.063Z"
+    },
+    {
+      "step": "My Orders Page",
+      "status": "pass",
+      "details": "My Orders URL: http://localhost:8080/login?to=/my-orders",
+      "time": "2026-08-13T07:51:40.228Z"
+    },
+    {
+      "step": "Test Execution",
+      "status": "fail",
+      "details": "No element found for selector: #first_name-input",
+      "time": "2026-08-13T07:51:45.424Z"
+    }
+  ]
+}

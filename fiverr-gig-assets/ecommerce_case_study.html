@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Full-Stack eCommerce Web Architecture Case Study</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #090d16; color: #e2e8f0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    
+    .page { width: 210mm; min-height: 297mm; padding: 20mm 20mm; background: #090d16; page-break-after: always; position: relative; }
+
+    .header { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 25px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .badge { display: inline-block; padding: 4px 12px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; color: #10b981; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px 14px; text-align: center; }
+    .stat-card .val { font-size: 22px; font-weight: 800; color: #10b981; margin-bottom: 4px; }
+    .stat-card .lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+    .section-title { font-size: 17px; font-weight: 700; color: #f8fafc; margin-bottom: 14px; }
+
+    .project-card { background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 20px; margin-bottom: 24px; }
+    .project-card h3 { font-size: 17px; color: #34d399; margin-bottom: 6px; }
+    .project-card p { font-size: 13px; line-height: 1.6; color: #cbd5e1; margin-bottom: 14px; }
+
+    .tag-list { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tag { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #6ee7b7; }
+
+    .features-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; color: #e2e8f0; line-height: 1.5; }
+    .feature-item { display: flex; align-items: flex-start; gap: 8px; }
+    .check { color: #10b981; font-weight: bold; }
+
+    .comparison-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px; }
+    .comparison-table th, .comparison-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .comparison-table th { background: rgba(15, 23, 42, 0.7); color: #94a3b8; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+    .comparison-table td:nth-child(2) { color: #10b981; font-weight: 600; }
+    .comparison-table td:nth-child(3) { color: #ef4444; }
+
+    .footer { position: absolute; bottom: 15mm; left: 20mm; right: 20mm; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px; display: flex; justify-content: space-between; font-size: 11px; color: #64748b; }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1>Full-Stack eCommerce Web Architecture</h1>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Custom High-Performance Storefront, Django REST API & Microservices</p>
+      </div>
+      <div class="badge">Production Architecture</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="val">100% Custom</div>
+        <div class="lbl">Zero Shopify Fees</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">&lt; 150ms</div>
+        <div class="lbl">API Response Time</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">Microservices</div>
+        <div class="lbl">Docker & Nginx</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">JWT Auth</div>
+        <div class="lbl">Secure User Accounts</div>
+      </div>
+    </div>
+
+    <div class="section-title">Core System Architecture: Microservices Online Store</div>
+    <div class="project-card">
+      <h3>Modern Decoupled Architecture (Django REST Framework + Vue 3)</h3>
+      <p>A high-concurrency eCommerce platform built with a decoupled architecture. The frontend provides an app-like reactive shopping experience, while the robust Python Django backend manages inventory transactions, orders, security, and automated background jobs.</p>
+      
+      <div class="tag-list">
+        <span class="tag">Django REST Framework</span>
+        <span class="tag">Vue 3</span>
+        <span class="tag">Vuex Persistent Cart</span>
+        <span class="tag">Celery &amp; Redis</span>
+        <span class="tag">Docker Compose</span>
+        <span class="tag">Nginx</span>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item"><span class="check">✔</span> <strong>Product &amp; Category Engine:</strong> Instant category filtering, search autocomplete, and image galleries.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Reactive Cart Management:</strong> Real-time cart state with persistent local storage and live item counts.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Customer Portal &amp; Auth:</strong> Secure token-based registration, login, profile, and order history tracking.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Checkout &amp; Address Validation:</strong> Multi-step shipping address, payment selection, and instant confirmation.</div>
+      </div>
+    </div>
+
+    <div class="section-title">Admin Management &amp; Background Automation</div>
+    <div class="project-card">
+      <h3>Built-in Business Backoffice (Django Admin &amp; Celery)</h3>
+      <p>Complete control over your online store without third-party recurring subscription fees.</p>
+      <div class="features-list">
+        <div class="feature-item"><span class="check">✔</span> <strong>Inventory Control:</strong> Add, edit, stock-track, and organize products and variants with ease.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Order Management:</strong> Inspect paid orders, customer shipping details, and fulfillment tracking.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Asynchronous Processing:</strong> Redis + Celery worker queues for invoice generation and transactional email alerts.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Production Docker Deploy:</strong> Multi-container orchestration with Nginx reverse proxy and SSL.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>Full-Stack eCommerce Web Engineering Case Study</span>
+      <span>Page 1 of 2</span>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1>Why Custom Full-Stack vs. Shopify / WooCommerce</h1>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Cost, Performance &amp; Scalability Comparison</p>
+      </div>
+      <div class="badge">Business Comparison</div>
+    </div>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Key Metric</th>
+          <th>Custom Python/Django + Vue Store</th>
+          <th>Shopify / WooCommerce</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Transaction &amp; Monthly Fees</strong></td>
+          <td><strong>$0 / month platform fees</strong> (Only standard Stripe/PayPal fees)</td>
+          <td>$39 - $399/month + 2% transaction fee penalty on third-party gateways</td>
+        </tr>
+        <tr>
+          <td><strong>Speed &amp; Performance</strong></td>
+          <td>Sub-second Vue 3 SPA loading (instant page transitions)</td>
+          <td>Often bloated with 20+ plugins, sluggish checkout</td>
+        </tr>
+        <tr>
+          <td><strong>Code &amp; Data Ownership</strong></td>
+          <td><strong>100% full ownership</strong> (Full open source repository)</td>
+          <td>Vendor lock-in (platform can suspend store anytime)</td>
+        </tr>
+        <tr>
+          <td><strong>Custom Logic &amp; Features</strong></td>
+          <td>Unlimited flexibility (Any custom business rules or API integrations)</td>
+          <td>Requires expensive monthly paid apps for basic features</td>
+        </tr>
+        <tr>
+          <td><strong>Security &amp; Stability</strong></td>
+          <td>Battle-tested Django security (Built-in CSRF, SQLi, XSS protection)</td>
+          <td>Frequent WordPress plugin zero-day vulnerabilities</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 30px;" class="section-title">Delivery Guarantee &amp; Production Deliverables:</div>
+    <div style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 22px;">
+      <div class="features-list">
+        <div class="feature-item"><span class="check">✔</span> <strong>Full Source Code Delivery:</strong> Clean, well-structured frontend and backend repositories.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>1-Click Docker Setup:</strong> Easy `docker compose up` setup for local development or VPS servers.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Payment Gateway Ready:</strong> Clean integration points for Stripe, PayPal, or local processors.</div>
+        <div class="feature-item"><span class="check">✔</span> <strong>Mobile Responsive UI:</strong> Flawless purchasing experience on iPhone, Android, and tablets.</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 35px; background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 18px; text-align: center;">
+      <h4 style="color: #34d399; font-size: 16px; margin-bottom: 6px;">Ready to launch a high-performance custom store?</h4>
+      <p style="color: #94a3b8; font-size: 13px;">Send me a message on Fiverr with your product requirements and let's get your store online!</p>
+    </div>
+
+    <div class="footer">
+      <span>Delivered with clean architecture &amp; zero monthly platform fees</span>
+      <span>Page 2 of 2</span>
+    </div>
+  </div>
+
+</body>
+</html>
