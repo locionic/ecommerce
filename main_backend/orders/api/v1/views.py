@@ -15,6 +15,23 @@ from orders.models import Order
 from orders.api.v1.serializers import OrderSerializer, MyOrderSerializer
 from django.utils.decorators import method_decorator
 
+@action(methods=["get"], detail=False, name="data owned by logged in user")
+def mine(self, request):
+    if request.user.is_anonymous:
+        raise PermissionDenied("You must be logged in to see which Orders are yours")
+    data = self.get_queryset().filter(created_by=request.user)
+
+    page = self.paginate_queryset(data)
+    if page is not None:
+        serializer = self.get_serializer_class()(page, many=True, context={"request": request})
+        return self.get_paginated_response(serializer.data)
+    serializer = self.get_serializer_class()(data, many=True, context={"request": request})
+    return Response(serializer.data)
+
+
+viewsets.ModelViewSet.mine = mine
+
+
 # @method_decorator(never_cache, name='get_queryset')
 # @never_cache
 class OrderViewSet(viewsets.ModelViewSet):
@@ -26,6 +43,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [authentication.TokenAuthentication]
     serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        """
+        Orders carry customer PII (name, email, address, phone), so a non staff user may
+        only ever see the orders they created. Staff keep the unfiltered queryset.
+        """
+        queryset = Order.objects.all()
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(created_by=self.request.user).select_related('created_by')
 
     def get_serializer_class(self):
         if self.action == "mine":
