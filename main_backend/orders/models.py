@@ -19,6 +19,14 @@ class Order(models.Model):
 
     paid_amount = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     payment_token = models.CharField(max_length=200)
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     paid = models.BooleanField(default=False)
     cash_on_delivery = models.BooleanField(default=False)
     delivered = models.BooleanField(default=False)

@@ -20,7 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 load_dotenv(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-gy@chd!-n)@wasv445exdasdw$2y^e6aq0oz9b0!^w!bfwtw'
+SECRET_KEY = os.environ.get(
+    'MAIN_SECRET_KEY',
+    'django-insecure-gy@chd!-n)@wasv445exdasdw$2y^e6aq0oz9b0!^w!bfwtw'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -167,8 +170,9 @@ LOGGING = {
 
 # Celery settings
 CELERY_RESULT_BACKEND = "django-db"
-# CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_BROKER_URL = "redis://:Be6RO6BKfnx7M7SRPmt8vwdQfCPigpTA@redis-13637.c61.us-east-1-3.ec2.cloud.redislabs.com:13637/0"
+_redis_host = os.environ.get('MAIN_REDIS_HOST', 'localhost')
+_redis_port = os.environ.get('MAIN_REDIS_PORT', '6379')
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", f"redis://{_redis_host}:{_redis_port}/0")
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

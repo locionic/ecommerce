@@ -45,7 +45,8 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        if not self.slug:
+            self.slug = slugify(self.name)
         super(Category, self).save(*args, **kwargs)
 
     @property
@@ -127,7 +128,14 @@ class Product(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super(Product, self).save(*args, **kwargs)
 
     @property
@@ -155,3 +163,16 @@ class Product(models.Model):
             self.thumbnail = self.generate_thumbnail()
             self.save()
             return self.thumbnail.url
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, related_name='wishlist_items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='wishlisted_by', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.title}"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from store.models import Product, Album, Review, Category
+from store.models import Product, Album, Review, Category, Wishlist
 
 admin.site.register(Category)
 
@@ -32,3 +32,12 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Product, ProductAdmin)
+
+
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "product", "created_at")
+    list_filter = ("created_at",)
+    search_fields = ("user__username", "product__title")
+
+
+admin.site.register(Wishlist, WishlistAdmin)

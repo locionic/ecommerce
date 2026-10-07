@@ -10,12 +10,15 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "payment_token",
         "created_by",
-        "phone",
-        "created_at",
+        "status",
+        "paid_amount",
         "paid",
         "cash_on_delivery",
         "delivered",
+        "created_at",
     )
+    list_filter = ("status", "paid", "delivered", "cash_on_delivery", "created_at")
+    search_fields = ("payment_token", "first_name", "last_name", "email", "phone")
 
 
 admin.site.register(Order, OrderAdmin)
