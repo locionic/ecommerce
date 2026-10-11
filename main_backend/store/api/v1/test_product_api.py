@@ -398,3 +398,132 @@ class ProductApiTestCase(TestCase):
         self.assertEqual(resp.status_code, 401)
         reviews = product.reviews.count()
         self.assertTrue(reviews == 0)
+
+
+class CatalogSearchAndCategoryFilterTestCase(TestCase):
+    """
+    A test case class for the catalog search query handling and the category
+    filtering applied to the store views.
+    Test cases:
+        test_search_matches_title()
+        test_search_matches_description()
+        test_search_is_case_insensitive()
+        test_search_with_no_match_returns_empty_page()
+        test_blank_search_returns_full_catalog()
+        test_overlong_search_term_is_truncated()
+        test_category_filter_on_product_list()
+        test_unknown_category_filter_returns_empty_page()
+        test_category_detail_lists_only_its_products()
+        test_category_detail_search_is_scoped_to_the_category()
+        test_category_detail_with_no_match_returns_empty_page()
+    """
+
+    def setUp(self):
+        self.admin = get_user_model().objects.create_user(
+            email="searcher@example.com", username='searcher', password="password", is_staff=True
+        )
+        self.clothes = Category.objects.create(name='Clothes', slug='clothes', created_by=self.admin)
+        self.laptops = Category.objects.create(name='Laptops', slug='laptops', created_by=self.admin)
+        self.books = Category.objects.create(name='Books', slug='books', created_by=self.admin)
+
+        Product.objects.create(
+            category=self.clothes, title="Green T-shirt", slug='green-t-shirt',
+            description="Cotton t-shirt", price=25.25, created_by=self.admin
+        )
+        Product.objects.create(
+            category=self.laptops, title="Asus TUF F-15", slug='asus_tuf_f-15',
+            description="A laptop with 8GB RAM", price=12000.00, created_by=self.admin
+        )
+        # shares a word with the laptop only in its description, not its title
+        Product.objects.create(
+            category=self.books, title="Notebook", slug='notebook',
+            description="A book about laptop repair", price=15.00, created_by=self.admin
+        )
+
+        self.client = APIClient()
+
+    def test_search_matches_title(self):
+        resp = self.client.get("/api/v1/products/", {'search': 't-shirt'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual([p["slug"] for p in data["results"]], ['green-t-shirt'])
+
+    def test_search_matches_description(self):
+        resp = self.client.get("/api/v1/products/", {'search': '8GB RAM'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual([p["slug"] for p in data["results"]], ['asus_tuf_f-15'])
+
+    def test_search_is_case_insensitive(self):
+        resp = self.client.get("/api/v1/products/", {'search': 'ASUS'})
+        self.assertEqual([p["slug"] for p in resp.json()["results"]], ['asus_tuf_f-15'])
+
+    def test_search_with_no_match_returns_empty_page(self):
+        resp = self.client.get("/api/v1/products/", {'search': 'nonexistent-term'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 0)
+        self.assertEqual(data["results"], [])
+        self.assertIsNone(data["next"])
+        self.assertIsNone(data["previous"])
+
+    def test_blank_search_returns_full_catalog(self):
+        """
+        A whitespace-only term is not a search: it must not filter the catalog, and it
+        must not be turned into a `LIKE '%%'` scan that matches every row.
+        """
+        resp = self.client.get("/api/v1/products/", {'search': '   '})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["count"], 3)
+
+    def test_overlong_search_term_is_truncated(self):
+        """
+        An unbounded term is a full scan with an arbitrarily wide pattern; it is capped
+        instead of being handed to the database as-is.
+        """
+        term = 'a' * 500
+        resp = self.client.get("/api/v1/products/", {'search': term})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["count"], 0)
+
+    def test_category_filter_on_product_list(self):
+        resp = self.client.get("/api/v1/products/", {'category': 'clothes'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual([p["slug"] for p in data["results"]], ['green-t-shirt'])
+
+    def test_unknown_category_filter_returns_empty_page(self):
+        resp = self.client.get("/api/v1/products/", {'category': 'no-such-category'})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["results"], [])
+
+    def test_category_detail_lists_only_its_products(self):
+        resp = self.client.get("/api/v1/categories/books/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["category"]["slug"], 'books')
+        self.assertEqual(data["products"]["count"], 1)
+        self.assertEqual([p["slug"] for p in data["products"]["results"]], ['notebook'])
+
+    def test_category_detail_search_is_scoped_to_the_category(self):
+        """
+        The laptop term also matches a book in its description; a category listing must
+        stay inside the category it was requested for.
+        """
+        resp = self.client.get("/api/v1/categories/laptops/", {'search': 'laptop'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["products"]["count"], 1)
+        self.assertEqual([p["slug"] for p in data["products"]["results"]], ['asus_tuf_f-15'])
+
+    def test_category_detail_with_no_match_returns_empty_page(self):
+        resp = self.client.get("/api/v1/categories/books/", {'search': 't-shirt'})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["category"]["slug"], 'books')
+        self.assertEqual(data["products"]["count"], 0)
+        self.assertEqual(data["products"]["results"], [])
+        self.assertIsNone(data["products"]["next"])
+        self.assertIsNone(data["products"]["previous"])

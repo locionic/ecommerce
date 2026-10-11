@@ -4,7 +4,7 @@
     <a class="pagination-next" @click.prevent="$emit('getResults', next)" :class="{ 'is-disabled': !next }">Next page</a>
     <ul class="pagination-list">
       <li v-for="index in Math.ceil(count/pageSize)" :key="index">
-        <a class="pagination-link" :class="{ 'is-current': page == index }" :aria-label="'Go to page ' + index" @click.prevent="$emit('getResults', defaultApiGet + '?page=' + index)"> {{index}} </a>
+        <a class="pagination-link" :class="{ 'is-current': page == index }" :aria-label="'Go to page ' + index" @click.prevent="$emit('getResults', pageUrl(index))"> {{index}} </a>
       </li>
     </ul>
   </nav>
@@ -22,6 +22,14 @@ export default {
   data() {
     return {
       pageSize: 20
+    }
+  },
+  methods: {
+    pageUrl(index) {
+      // `defaultApiGet` may already carry query params (a search term, a category
+      // filter), so the page number has to be merged rather than appended blindly.
+      const separator = this.defaultApiGet.includes('?') ? '&' : '?'
+      return `${this.defaultApiGet}${separator}page=${index}`
     }
   }
 }

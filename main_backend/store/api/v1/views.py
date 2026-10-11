@@ -24,6 +24,44 @@ from users.api.v1.serializers import UserSerializer
 
 User = get_user_model()
 
+# An unbounded term turns every request into a full-table `%term%` scan: `?search=%20`
+# used to match every row that happens to contain a space, and a multi-kilobyte term
+# is no cheaper. Terms are normalized and capped before they reach the database.
+MAX_SEARCH_LENGTH = 100
+
+
+def normalized_search_term(request):
+    """
+    Return the trimmed search term for a request, or '' when there isn't a usable one.
+    Collapsing internal whitespace keeps the LIKE pattern bounded and predictable.
+    """
+    term = request.query_params.get('search', '')
+    if not isinstance(term, str):
+        return ''
+    return ' '.join(term.split())[:MAX_SEARCH_LENGTH]
+
+
+def filter_products(queryset, request):
+    """
+    Apply the catalog filters shared by the product list and the category detail
+    endpoints: an optional search term and an optional list of category slugs.
+    """
+    term = normalized_search_term(request)
+    if term:
+        queryset = queryset.filter(
+            Q(title__icontains=term) | Q(description__icontains=term)
+        )
+
+    slugs = [slug for slug in request.query_params.getlist('category') if slug]
+    if slugs:
+        # Semi-join on the category slugs instead of joining the categories table, and
+        # an unknown slug resolves to an empty result set rather than a 404.
+        queryset = queryset.filter(
+            category_id__in=Category.objects.filter(slug__in=slugs).values('pk')
+        )
+
+    return queryset
+
 
 @method_decorator(cache_page(300))
 @method_decorator(vary_on_headers("Authorization"))
@@ -47,7 +85,9 @@ viewsets.ModelViewSet.mine = mine
 
 class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Product.objects.all()
+    # `category` is serialized on every row and `created_by` is a hyperlinked field
+    # that reverse()s a URL, so both are pulled in to keep list pages at one query.
+    queryset = Product.objects.select_related('category', 'created_by')
     permission_classes = [IsReviewReadOnly | SellerModifyOrReadOnly | IsAdminUserForObject | IsSellerUser]
 
     def get_serializer_class(self):
@@ -56,15 +96,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         return ProductDetailSerializer
 
     def get_queryset(self):
-        search = self.request.query_params.get('search')
-        if search:
-            return Product.objects.filter(Q(title__icontains=search) | Q(description__icontains=search))
-        return self.queryset
+        return filter_products(super().get_queryset(), self.request)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Category.objects.all()
+    queryset = Category.objects.select_related('created_by').all()
     permission_classes = [CategoryPermission]
     serializer_class = CategorySerializer
 
@@ -74,18 +111,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         category = get_object_or_404(Category, slug=kwargs.get('slug'))
 
-        query_set = Product.objects.filter(category=category)
+        query_set = Product.objects.filter(category=category).select_related('category', 'created_by')
+        query_set = filter_products(query_set, request)
 
-        # create a custom pagination for the products
         paginator = PageNumberPagination()
-        paginator.page_size = settings.PAGINATION_PAGE_SIZE
-        query_set = paginator.paginate_queryset(query_set, request)
         paginator.page_query_param = 'page'
+        paginator.page_size = settings.PAGINATION_PAGE_SIZE
+        page = paginator.paginate_queryset(query_set, request)
 
         # category information for json response
         category = CategorySerializer(category).data
         # products list for json response
-        products = ProductSerializer(query_set, many=True, context={'request': request}).data
+        products = ProductSerializer(page, many=True, context={'request': request}).data
         return Response(
             {
                 "category": category,
