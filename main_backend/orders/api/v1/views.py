@@ -19,13 +19,18 @@ from django.utils.decorators import method_decorator
 # @never_cache
 class OrderViewSet(viewsets.ModelViewSet):
     """
-    TODO:set more permissions to allow only super user to see the all orders and payers to see their customers' orders
+    API endpoint to allow super user to see all orders and regular users to see only their own orders.
     """
     lookup_field = "payment_token"
     queryset = Order.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [authentication.TokenAuthentication]
     serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Order.objects.all()
+        return Order.objects.filter(created_by=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "mine":
