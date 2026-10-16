@@ -5,7 +5,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers, vary_on_cookie
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 from rest_framework import viewsets, generics, status
 from rest_framework.pagination import PageNumberPagination
@@ -47,7 +47,7 @@ viewsets.ModelViewSet.mine = mine
 
 class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('category', 'created_by')
     permission_classes = [IsReviewReadOnly | SellerModifyOrReadOnly | IsAdminUserForObject | IsSellerUser]
 
     def get_serializer_class(self):
@@ -57,14 +57,14 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         search = self.request.query_params.get('search')
-        if search:
-            return Product.objects.filter(Q(title__icontains=search) | Q(description__icontains=search))
-        return self.queryset
+        if not search or not search.strip():
+            return self.queryset.prefetch_related('reviews', 'images')
+        return Product.objects.filter(Q(title__icontains=search) | Q(description__icontains=search)).select_related('category', 'created_by').prefetch_related('reviews', 'images')
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Category.objects.all()
+    queryset = Category.objects.prefetch_related('product')
     permission_classes = [CategoryPermission]
     serializer_class = CategorySerializer
 
@@ -74,21 +74,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         category = get_object_or_404(Category, slug=kwargs.get('slug'))
 
-        query_set = Product.objects.filter(category=category)
+        query_set = Product.objects.filter(category=category).select_related('category', 'created_by').prefetch_related('reviews', 'images')
 
-        # create a custom pagination for the products
         paginator = PageNumberPagination()
         paginator.page_size = settings.PAGINATION_PAGE_SIZE
         query_set = paginator.paginate_queryset(query_set, request)
         paginator.page_query_param = 'page'
 
-        # category information for json response
-        category = CategorySerializer(category).data
-        # products list for json response
+        category_data = CategorySerializer(category).data
         products = ProductSerializer(query_set, many=True, context={'request': request}).data
         return Response(
             {
-                "category": category,
+                "category": category_data,
                 "products": {
                     "count": paginator.page.paginator.count,
                     "next": paginator.get_next_link(),

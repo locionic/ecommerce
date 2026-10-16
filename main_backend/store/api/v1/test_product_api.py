@@ -398,3 +398,68 @@ class ProductApiTestCase(TestCase):
         self.assertEqual(resp.status_code, 401)
         reviews = product.reviews.count()
         self.assertTrue(reviews == 0)
+
+    def test_product_search_with_empty_query(self):
+        """
+        Test that an empty search query returns all products
+        """
+        resp = self.client.get("/api/v1/products/?search=")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()["results"]
+        self.assertEqual(len(data), 2)
+
+    def test_product_search_with_whitespace_query(self):
+        """
+        Test that a whitespace-only search query returns all products
+        """
+        resp = self.client.get("/api/v1/products/?search=%20%20%20")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()["results"]
+        self.assertEqual(len(data), 2)
+
+    def test_product_search_with_results(self):
+        """
+        Test search with matching results
+        """
+        resp = self.client.get("/api/v1/products/?search=T-shirt")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()["results"]
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["title"], "T-shirt")
+
+    def test_product_search_with_no_results(self):
+        """
+        Test search with no matching results
+        """
+        resp = self.client.get("/api/v1/products/?search=NonExistentProduct")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()["results"]
+        self.assertEqual(len(data), 0)
+
+    def test_category_with_no_products(self):
+        """
+        Test category endpoint returns empty products list for category without products
+        """
+        category = Category.objects.create(
+            name='Empty Category',
+            slug='empty-category',
+            created_at=timezone.now(),
+            created_by=self.admin
+        )
+        resp = self.client.get(f"/api/v1/categories/{category.slug}/")
+        self.assertEqual(resp.status_code, 200)
+        resp_data = resp.json()
+        self.assertEqual(resp_data["category"]["name"], 'Empty Category')
+        self.assertEqual(resp_data["products"]["count"], 0)
+        self.assertEqual(resp_data["products"]["results"], [])
+
+    def test_category_with_products(self):
+        """
+        Test category endpoint returns products for category with products
+        """
+        resp = self.client.get("/api/v1/categories/clothes/")
+        self.assertEqual(resp.status_code, 200)
+        resp_data = resp.json()
+        self.assertEqual(resp_data["category"]["name"], 'Clothes')
+        self.assertEqual(resp_data["products"]["count"], 1)
+        self.assertEqual(len(resp_data["products"]["results"]), 1)
