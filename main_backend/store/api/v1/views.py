@@ -68,7 +68,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Category.objects.prefetch_related('product_set').all()
+    queryset = Category.objects.prefetch_related("product")
     permission_classes = [CategoryPermission]
     serializer_class = CategorySerializer
 
@@ -78,7 +78,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         category = get_object_or_404(Category, slug=kwargs.get('slug'))
 
-        products = category.product_set.filter(is_active=True, in_stock=True)
+        products = category.product.filter(is_active=True, in_stock=True)
 
         paginator = PageNumberPagination()
         paginator.page_size = settings.PAGINATION_PAGE_SIZE
