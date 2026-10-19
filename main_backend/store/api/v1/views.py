@@ -47,7 +47,7 @@ viewsets.ModelViewSet.mine = mine
 
 class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('category').all()
     permission_classes = [IsReviewReadOnly | SellerModifyOrReadOnly | IsAdminUserForObject | IsSellerUser]
 
     def get_serializer_class(self):
@@ -56,15 +56,19 @@ class ProductViewSet(viewsets.ModelViewSet):
         return ProductDetailSerializer
 
     def get_queryset(self):
-        search = self.request.query_params.get('search')
+        queryset = self.queryset
+        search = self.request.query_params.get('search', '').strip()
+
         if search:
-            return Product.objects.filter(Q(title__icontains=search) | Q(description__icontains=search))
-        return self.queryset
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+        return queryset
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
-    queryset = Category.objects.all()
+    queryset = Category.objects.prefetch_related('product_set').all()
     permission_classes = [CategoryPermission]
     serializer_class = CategorySerializer
 
@@ -74,33 +78,28 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         category = get_object_or_404(Category, slug=kwargs.get('slug'))
 
-        query_set = Product.objects.filter(category=category)
+        products = category.product_set.filter(is_active=True, in_stock=True)
 
-        # create a custom pagination for the products
         paginator = PageNumberPagination()
         paginator.page_size = settings.PAGINATION_PAGE_SIZE
-        query_set = paginator.paginate_queryset(query_set, request)
-        paginator.page_query_param = 'page'
+        paginated_products = paginator.paginate_queryset(products, request)
 
-        # category information for json response
-        category = CategorySerializer(category).data
-        # products list for json response
-        products = ProductSerializer(query_set, many=True, context={'request': request}).data
-        return Response(
-            {
-                "category": category,
-                "products": {
-                    "count": paginator.page.paginator.count,
-                    "next": paginator.get_next_link(),
-                    "previous": paginator.get_previous_link(),
-                    "results": products
-                }
+        category_data = CategorySerializer(category).data
+        products_data = ProductSerializer(paginated_products, many=True, context={'request': request}).data
+
+        return Response({
+            "category": category_data,
+            "products": {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "results": products_data
             }
-        )
+        })
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+    queryset = Review.objects.select_related('content_object').all()
     permission_classes = [CreateOrCreatorModify]
     serializer_class = ReviewSerializer
     content_type_pk = ContentType.objects.get(app_label="store", model="product").pk
@@ -123,4 +122,3 @@ class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     permission_classes = [CreatorModifyOrReadOnly | IsAdminUserForObject]
     serializer_class = AlbumSerializer
-
