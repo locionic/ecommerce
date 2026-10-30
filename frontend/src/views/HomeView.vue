@@ -46,13 +46,18 @@
         <div class="column is-12 text-center-mobile">
           <h2 class="is-size-3 has-text-weight-bold mb-5 section-title">Trending Now</h2>
         </div>
-      <ProductBox
-          v-for="product in products"
-          v-bind:key="product.id"
-          v-bind:product="product"
-      />
-    </div>
-    <MyPagination @get-results="(path_param) => getProducts(path_param)" :count="count" :previous="previous" :next="next" :page="page" :default-api-get="defaultApiGet" />
+        <div v-if="products.length > 0" class="column is-12">
+          <ProductBox
+              v-for="product in products"
+              v-bind:key="product.id"
+              v-bind:product="product"
+          />
+        </div>
+        <div v-else class="column is-12 has-text-centered">
+          <p class="has-text-grey" v-if="products.length === 0 && !isLoading">No products available.</p>
+        </div>
+      </div>
+      <MyPagination @get-results="(path_param) => getProducts(path_param)" :count="count" :previous="previous" :next="next" :page="page" :default-api-get="defaultApiGet" />
     </div>
   </div>
 </template>
@@ -72,7 +77,8 @@ export default {
       previous: null,
       page: 1,
       pageSize: 20,
-      defaultApiGet: '/api/v1/products'
+      defaultApiGet: '/api/v1/products',
+      isLoading: false
     }
   },
   components: {
@@ -85,7 +91,7 @@ export default {
   },
   methods: {
     getProducts: async function(path_param=null){
-      this.$store.commit('setIsLoading', true)
+      this.isLoading = true
       let path_url = '/api/v1/products'
       if (path_param) {
         path_url = '/api' + path_param.split('/api')[1]
@@ -95,21 +101,23 @@ export default {
       } else {
         this.page = 1
       }
-      await axios.get(path_url).then(response =>{
-        this.products = response.data.results
+      try {
+        const response = await axios.get(path_url)
+        this.products = response.data.results || []
         this.count = response.data.count
         this.next = response.data.next
         this.previous = response.data.previous
-        
-        // Smooth scroll to product section if it exists
+        if (response.data.is_empty) {
+          console.log('Empty products state detected')
+        }
         if (this.$refs.productSection) {
           const y = this.$refs.productSection.getBoundingClientRect().top + window.scrollY - 100;
           window.scrollTo({ top: y, behavior: 'smooth' });
         }
-      }).catch(error =>{
+      } catch (error ){
         console.log(error)
-      })
-      this.$store.commit('setIsLoading', false)
+      }
+      this.isLoading = false
     }
   }
 }
@@ -138,7 +146,6 @@ export default {
   background: rgba(6, 182, 212, 0.1) !important;
   color: #06b6d4 !important;
   border: 1px solid rgba(6, 182, 212, 0.3);
-  padding: 0.5rem 1rem;
 }
 
 .hero-title {

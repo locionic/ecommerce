@@ -398,3 +398,85 @@ class ProductApiTestCase(TestCase):
         self.assertEqual(resp.status_code, 401)
         reviews = product.reviews.count()
         self.assertTrue(reviews == 0)
+
+    def test_product_list_with_empty_search(self):
+        """
+        Test that search with empty string returns all products
+        """
+        resp = self.client.get("/api/v1/products/?search=")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 2)
+
+    def test_product_list_with_whitespace_search(self):
+        """
+        Test that search with whitespace is trimmed and ignored
+        """
+        resp = self.client.get("/api/v1/products/?search=   ")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 2)
+
+    def test_product_list_with_matching_search(self):
+        """
+        Test that search with matching query returns results
+        """
+        resp = self.client.get("/api/v1/products/?search=T-shirt")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["title"], "T-shirt")
+
+    def test_product_list_with_no_matching_search(self):
+        """
+        Test that search with no matches returns empty results with proper structure
+        """
+        resp = self.client.get("/api/v1/products/?search=nonexistent")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 0)
+        self.assertIn("results", data)
+        self.assertEqual(data["results"], [])
+
+    def test_category_retrieve_with_products(self):
+        """
+        Test category retrieve returns products properly
+        """
+        resp = self.client.get("/api/v1/categories/clothes/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("category", data)
+        self.assertIn("products", data)
+        self.assertIn("count", data["products"])
+        self.assertIn("results", data["products"])
+        self.assertIn("is_empty", data["products"])
+
+    def test_category_retrieve_with_no_products(self):
+        """
+        Test category retrieve when no active products exist
+        """
+        resp = self.client.get("/api/v1/categories/laptops/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("category", data)
+        self.assertIn("products", data)
+        self.assertIn("is_empty", data["products"])
+
+    def test_product_retrieve_returns_product(self):
+        """
+        Test that individual product can be retrieved
+        """
+        resp = self.client.get("/api/v1/products/t-shirt/")
+        self.assertEqual(resp.status_code, 200)
+
+    def test_product_list_empty_results_structure(self):
+        """
+        Test that product list always returns proper structure even when empty
+        """
+        resp = self.client.get("/api/v1/products/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("count", data)
+        self.assertIn("results", data)
+        self.assertIn("next", data)
+        self.assertIn("previous", data)

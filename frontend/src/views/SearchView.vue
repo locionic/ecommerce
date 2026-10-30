@@ -7,11 +7,16 @@
           Search term: "{{search}}"
         </h2>
       </div>
-      <ProductBox
-          v-for="product in products"
-          v-bind:key="product.id"
-          v-bind:product="product"
-      />
+      <div v-if="products.length > 0" class="column is-12">
+        <ProductBox
+            v-for="product in products"
+            v-bind:key="product.id"
+            v-bind:product="product"
+        />
+      </div>
+      <div v-else class="column is-12 has-text-centered">
+        <p v-if="search && !isLoading" class="has-text-grey">No products found for "{{search}}".</p>
+      </div>
     </div>
   </div>
 </template>
@@ -29,7 +34,8 @@ export default {
   data(){
     return{
       products:[],
-      search: ''
+      search: '',
+      isLoading: false
     }
   },
   mounted() {
@@ -38,17 +44,26 @@ export default {
     let params = new URLSearchParams(uri)
 
     if (params.get('search')){
-      this.search = params.get('search')
-      this.performSearch()
+      this.search = params.get('search').trim()
+      if (this.search) {
+        this.performSearch()
+      }
     }
   },
   methods:{
     performSearch: async function (){
-      this.$store.commit('setIsLoading', true)
+      if (!this.search) return
 
-      await axios.get(`api/v1/products/?search=${this.search}`).then(response =>{
-        this.products = response.data.results
-      }).catch(error =>{
+      this.isLoading = true
+      this.products = []
+
+      try {
+        const response = await axios.get(`api/v1/products/?search=${encodeURIComponent(this.search)}`)
+        this.products = response.data.results || []
+        if (response.data.is_empty) {
+          console.log('Empty search results state detected')
+        }
+      } catch(error ){
         console.log(error)
         toast({
           message: 'Something went wrong, Please try again.',
@@ -58,9 +73,9 @@ export default {
           duration:2000,
           position:'bottom-right',
         })
-      })
+      }
 
-      this.$store.commit('setIsLoading', false)
+      this.isLoading = false
 
     }
   }
