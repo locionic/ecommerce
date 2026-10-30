@@ -480,3 +480,157 @@ class ProductApiTestCase(TestCase):
         self.assertIn("results", data)
         self.assertIn("next", data)
         self.assertIn("previous", data)
+
+    def test_category_faceted_filtering_price_range(self):
+        """
+        Test faceted filtering by min_price and max_price on category retrieve
+        """
+        resp = self.client.get("/api/v1/categories/clothes/?min_price=100&max_price=150")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["products"]["count"], 1)
+        self.assertEqual(data["products"]["results"][0]["title"], "T-shirt")
+
+        resp_none = self.client.get("/api/v1/categories/clothes/?min_price=200")
+        self.assertEqual(resp_none.status_code, 200)
+        data_none = resp_none.json()
+        self.assertEqual(data_none["products"]["count"], 0)
+        self.assertTrue(data_none["products"]["is_empty"])
+
+    def test_category_faceted_filtering_in_stock(self):
+        """
+        Test faceted filtering by in_stock on category retrieve
+        """
+        resp = self.client.get("/api/v1/categories/clothes/?in_stock=true")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["products"]["count"], 1)
+
+        resp_out = self.client.get("/api/v1/categories/clothes/?in_stock=false")
+        self.assertEqual(resp_out.status_code, 200)
+        data_out = resp_out.json()
+        self.assertEqual(data_out["products"]["count"], 0)
+
+    def test_category_facets_in_response(self):
+        """
+        Test category retrieve includes facet statistics in response
+        """
+        resp = self.client.get("/api/v1/categories/clothes/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("facets", data)
+        facets = data["facets"]
+        self.assertIn("price_range", facets)
+        self.assertIn("in_stock_count", facets)
+        self.assertIn("out_of_stock_count", facets)
+        self.assertIn("total_count", facets)
+        self.assertEqual(facets["total_count"], 1)
+        self.assertEqual(facets["in_stock_count"], 1)
+        self.assertEqual(facets["price_range"]["min"], 125.25)
+        self.assertEqual(facets["price_range"]["max"], 125.25)
+
+    def test_category_facets_dedicated_endpoint(self):
+        """
+        Test dedicated /api/v1/categories/<slug>/facets/ endpoint
+        """
+        resp = self.client.get("/api/v1/categories/clothes/facets/")
+        self.assertEqual(resp.status_code, 200)
+        facets = resp.json()
+        self.assertIn("price_range", facets)
+        self.assertIn("in_stock_count", facets)
+        self.assertEqual(facets["total_count"], 1)
+
+    def test_product_faceted_filtering_by_category(self):
+        """
+        Test filtering catalog products by category slug and id
+        """
+        resp = self.client.get("/api/v1/products/?category=clothes")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["title"], "T-shirt")
+
+        resp_id = self.client.get("/api/v1/products/?category_slug=laptops")
+        self.assertEqual(resp_id.status_code, 200)
+        data_id = resp_id.json()
+        self.assertEqual(data_id["count"], 1)
+        self.assertEqual(data_id["results"][0]["title"], "Asus TUF F-15")
+
+    def test_product_faceted_filtering_by_price_range(self):
+        """
+        Test filtering catalog products by price range
+        """
+        resp = self.client.get("/api/v1/products/?min_price=1000")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["title"], "Asus TUF F-15")
+
+        resp_low = self.client.get("/api/v1/products/?max_price=500")
+        self.assertEqual(resp_low.status_code, 200)
+        data_low = resp_low.json()
+        self.assertEqual(data_low["count"], 1)
+        self.assertEqual(data_low["results"][0]["title"], "T-shirt")
+
+    def test_product_faceted_filtering_by_stock(self):
+        """
+        Test filtering catalog products by stock availability
+        """
+        resp = self.client.get("/api/v1/products/?in_stock=true")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["count"], 2)
+
+        resp_out = self.client.get("/api/v1/products/?in_stock=false")
+        self.assertEqual(resp_out.status_code, 200)
+        self.assertEqual(resp_out.json()["count"], 0)
+
+    def test_product_catalog_ordering(self):
+        """
+        Test catalog ordering by price and title
+        """
+        resp_asc = self.client.get("/api/v1/products/?ordering=price")
+        self.assertEqual(resp_asc.status_code, 200)
+        results_asc = resp_asc.json()["results"]
+        self.assertEqual(results_asc[0]["title"], "T-shirt")
+        self.assertEqual(results_asc[1]["title"], "Asus TUF F-15")
+
+        resp_desc = self.client.get("/api/v1/products/?ordering=-price")
+        self.assertEqual(resp_desc.status_code, 200)
+        results_desc = resp_desc.json()["results"]
+        self.assertEqual(results_desc[0]["title"], "Asus TUF F-15")
+        self.assertEqual(results_desc[1]["title"], "T-shirt")
+
+        resp_title = self.client.get("/api/v1/products/?ordering=title")
+        self.assertEqual(resp_title.status_code, 200)
+        results_title = resp_title.json()["results"]
+        self.assertEqual(results_title[0]["title"], "Asus TUF F-15")
+        self.assertEqual(results_title[1]["title"], "T-shirt")
+
+    def test_product_multi_term_catalog_search(self):
+        """
+        Test multi-keyword search across title and description
+        """
+        resp = self.client.get("/api/v1/products/?search=asus%20FHD")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(data["results"][0]["title"], "Asus TUF F-15")
+
+    def test_product_facets_in_list_and_dedicated_endpoint(self):
+        """
+        Test facets in product list response and dedicated /api/v1/products/facets/
+        """
+        resp_list = self.client.get("/api/v1/products/")
+        self.assertEqual(resp_list.status_code, 200)
+        data_list = resp_list.json()
+        self.assertIn("facets", data_list)
+        self.assertIn("price_range", data_list["facets"])
+        self.assertIn("categories", data_list["facets"])
+        self.assertEqual(len(data_list["facets"]["categories"]), 2)
+
+        resp_facets = self.client.get("/api/v1/products/facets/")
+        self.assertEqual(resp_facets.status_code, 200)
+        data_facets = resp_facets.json()
+        self.assertIn("price_range", data_facets)
+        self.assertIn("categories", data_facets)
+        self.assertEqual(data_facets["total_count"], 2)
